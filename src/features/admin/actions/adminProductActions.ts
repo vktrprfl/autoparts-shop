@@ -4,7 +4,7 @@ import { prisma } from "@/src/lib/prisma";
 import { Product } from "@/src/types";
 import { createClient } from "@/lib/supabase/client";
 import { createServerClientFn } from "@/lib/supabase/server";
-import { generateSearchText } from "@/app/admin/utils/generateSearchText";
+import { generateSearchText } from "@/features/admin/utils/generateSearchText";
 import {toPlain} from "@/lib/utils/toPlain";
 
 

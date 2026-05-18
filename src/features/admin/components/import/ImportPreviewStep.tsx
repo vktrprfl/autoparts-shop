@@ -23,6 +23,8 @@ export default function ImportPreviewStep({
                                           }: ImportPreviewStepProps) {
     const { toAdd, toUpdate, errors, stats } = previewData;
 
+
+
     // Вспомогательная функция для красивого отображения характеристик
     const formatSpecifications = (specs?: Record<string, any>) => {
         if (!specs || Object.keys(specs).length === 0) return "—";

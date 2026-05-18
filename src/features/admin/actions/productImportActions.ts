@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/src/lib/prisma";
-import {generateSearchText} from "@/app/admin/utils/generateSearchText";
+import {generateSearchText} from "@/features/admin/utils/generateSearchText";
 
 
 export async function importProducts(products: any[]) {

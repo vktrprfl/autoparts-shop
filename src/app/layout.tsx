@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import Footer from "@/src/common/components/Footer";
-import AuthProvider from "@/src/providers/AuthProvider";
 import {startMagicTokenCleanup} from "@/lib/cron/clean-magic-tokens";
-
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
     title: "AutoPart Pro — Автозапчасти",
@@ -15,6 +14,8 @@ export const metadata: Metadata = {
         shortcut: '/icon-16.png',
     },
 };
+
+
 
 export default function RootLayout({
                                        children,
@@ -33,7 +34,7 @@ export default function RootLayout({
         <Providers>
 
             {children}
-
+            <SpeedInsights />
             <Footer />
         </Providers>
         </body>

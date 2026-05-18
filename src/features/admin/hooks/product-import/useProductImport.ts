@@ -13,7 +13,7 @@ export function useProductImport() {
             const json = await res.json();
             return json.oems || [];
         },
-        staleTime: 1000 * 60 * 10, // 10 минут
+
     });
 
     const existingOems = existingOemsData || [];
