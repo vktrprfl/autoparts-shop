@@ -9,7 +9,7 @@ import {getProducts} from "@/features/actions/productActions";
 export const useProducts = (filters: ProductsFilter) => {
     const searchParams = useSearchParams();
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = 12;
+    const limit = 8;
 
     const debouncedSearch = useDebounce(filters.search?.trim() || "", 400);
 
