@@ -82,3 +82,21 @@ export async function getProduct(id: string) {
     return toPlain(product);
 }
 
+export async function getFeaturedProducts() {
+    const products = await prisma.product.findMany({
+        take: 8,
+        orderBy: { createdAt: 'desc' },
+        select: {
+            id: true,
+            name: true,
+            oem: true,
+            price: true,
+            brand: true,
+            stock: true,
+            images: true,
+        }
+    });
+
+    return { products: toPlain(products) };
+}
+

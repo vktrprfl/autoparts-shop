@@ -1,17 +1,24 @@
-'use client';
-
+// app/page.tsx
 import { Suspense } from 'react';
-import HomeContent from "@/src/features/home/HomeContent";
+import Hero from "@/src/features/home/Hero";           // ← создадим
+import FeaturedProducts from "@/src/features/home/FeaturedProducts"; // ← создадим
+import BrandsSection from "@/src/features/home/BrandsSection";     // ← создадим
 
 
 export default function HomePage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-                <div className="text-white text-xl">Загрузка магазина...</div>
-            </div>
-        }>
-            <HomeContent />
-        </Suspense>
+        <main className="bg-zinc-950 min-h-screen">
+            <Hero />
+
+            <Suspense fallback={<div className="h-96 bg-zinc-950" />}>
+                <FeaturedProducts />
+            </Suspense>
+
+            <Suspense fallback={<div className="h-64 bg-zinc-950" />}>
+                <BrandsSection />
+            </Suspense>
+
+
+        </main>
     );
 }
