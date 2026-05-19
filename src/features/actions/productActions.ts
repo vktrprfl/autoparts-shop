@@ -44,8 +44,8 @@ export async function getProducts(filters: ProductsFilter & { page?: number; lim
                 brand: true,
                 stock: true,
                 images: true,
-                description: true,
-                crossNumbers: true,
+                // description: true,
+                // crossNumbers: true,
             }
         }),
         prisma.product.count({ where }),
@@ -79,6 +79,6 @@ export async function getProduct(id: string) {
         throw new Error("Товар не найден");
     }
 
-    return toPlain(product);     // ← тоже нужно!
+    return toPlain(product);
 }
 
