@@ -112,7 +112,12 @@ export async function getFeaturedProducts() {
     return { products: toPlain(products) };
 }
 
-export async function getProductsServer(filters: ProductsFilter & { page?: number; limit?: number }) {
+export async function getProductsServer(
+    filters: Partial<ProductsFilter> & {
+        page?: number;
+        limit?: number
+    } = {}
+) {
     const page = filters.page || 1;
     const limit = filters.limit || 12;
     const skip = (page - 1) * limit;
@@ -131,9 +136,9 @@ export async function getProductsServer(filters: ProductsFilter & { page?: numbe
     if (filters.brand) where.brand = filters.brand;
     if (filters.onlyInStock) where.stock = { gt: 0 };
 
-    const orderBy = filters.sort === "price_asc" ? { price: "asc" }
-        : filters.sort === "price_desc" ? { price: "desc" }
-            : { createdAt: "desc" };
+    const orderBy = filters.sort === "price_asc" ? { price: "asc" as const }
+        : filters.sort === "price_desc" ? { price: "desc" as const }
+            : { createdAt: "desc" as const };
 
     const [products, total] = await Promise.all([
         prisma.product.findMany({
@@ -142,8 +147,13 @@ export async function getProductsServer(filters: ProductsFilter & { page?: numbe
             skip,
             take: limit,
             select: {
-                id: true, name: true, oem: true, price: true,
-                brand: true, stock: true, images: true,
+                id: true,
+                name: true,
+                oem: true,
+                price: true,
+                brand: true,
+                stock: true,
+                images: true,
             }
         }),
         prisma.product.count({ where }),
@@ -156,5 +166,4 @@ export async function getProductsServer(filters: ProductsFilter & { page?: numbe
         totalPages: Math.ceil(total / limit),
     };
 }
-
 

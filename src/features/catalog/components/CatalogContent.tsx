@@ -14,8 +14,14 @@ import Pagination from "@/src/features/catalog/components/Pagination";
 import { useCatalogFilters } from "@/src/hooks/useCatalogFilters";
 import { getProductsServer } from "@/features/actions/productActions";
 import {useBrands} from "@/features/catalog/hooks/useBrands";
+import {Product} from "@/types";
 
-type InitialData = Awaited<ReturnType<typeof getProductsServer>>;
+type InitialData = {
+    products: Product[];
+    total: number;
+    page: number;
+    totalPages: number;
+};
 
 export default function CatalogContent({ initialData }: { initialData: InitialData }) {
     const searchParams = useSearchParams();
@@ -75,7 +81,7 @@ export default function CatalogContent({ initialData }: { initialData: InitialDa
                         ) : (
                             <>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {products.map((product) => (
+                                    {products.map((product:Product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
                                 </div>
