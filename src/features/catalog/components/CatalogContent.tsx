@@ -1,94 +1,147 @@
 // features/catalog/components/CatalogContent.tsx
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 import Navbar from "@/src/features/Navbar/components/Navbar";
+import { useAllProducts } from "@/src/hooks/useAllProducts";
+import { useCatalogFilters } from "@/src/hooks/useCatalogFilters";
+import { useFloatingButton } from "@/src/hooks/useFloatingButton";
+
 import Filters from "@/src/features/catalog/components/Filters";
 import ProductCard from "@/src/features/catalog/components/ProductCard";
 import ProductCardSkeleton from "@/src/features/catalog/components/ProductCardSkeleton";
 import Pagination from "@/src/features/catalog/components/Pagination";
+import FeedbackModal from "@/src/features/feedback/components/FeedbackModal";
 
-import { useCatalogFilters } from "@/src/hooks/useCatalogFilters";
-import { getProductsServer } from "@/features/actions/productActions";
-import {useBrands} from "@/features/catalog/hooks/useBrands";
-import {Product} from "@/types";
+import { SlidersHorizontal, MessageCircle } from "lucide-react";
+import { Product } from "@/types";
 
-type InitialData = {
-    products: Product[];
-    total: number;
-    page: number;
-    totalPages: number;
-};
+export default function CatalogContent() {
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-export default function CatalogContent({ initialData }: { initialData: InitialData }) {
+    const showFloatingButton = useFloatingButton();
     const searchParams = useSearchParams();
-    const {
-        filters,
-        handleSearchChange,
-        handleFilterChange,
-        handleReset,
-        changePage,
-    } = useCatalogFilters();
 
-    const page = parseInt(searchParams.get("page") || "1");
+    const { filters, handleSearchChange, handleFilterChange, handleReset, changePage } =
+        useCatalogFilters();
 
-    // Основной запрос (использует initialData при первой загрузке)
-    const { data, isLoading } = useQuery({
-        queryKey: ["products", filters, page],
-        queryFn: () => getProductsServer({ ...filters, page, limit: 12 }),
-        initialData: page === 1 && !filters.search && !filters.brand && !filters.onlyInStock
-            ? initialData
-            : undefined,
-        staleTime: 60_000,
-    });
+    const { data: allProducts = [], isLoading: productsLoading } = useAllProducts();
 
-    const { data: brands = [], isLoading: brandsLoading } = useBrands();
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const limit = 12;
 
-    const products = data?.products || [];
-    const totalPages = data?.totalPages || 1;
-    const total = data?.total || 0;
+    // === Основная фильтрация ===
+    const filteredAndSorted = useMemo(() => {
+        if (!allProducts.length) return [];
+
+        let result = [...allProducts];
+        const searchTerm = filters.search?.toLowerCase().trim();
+
+        if (searchTerm) {
+            result = result.filter((p: Product) => {
+                const term = searchTerm.toLowerCase();
+
+                return (
+                    p.name?.toLowerCase().includes(term) ||
+                    p.oem?.toLowerCase().includes(term) ||
+                    p.brand?.toLowerCase().includes(term) ||
+                    (Array.isArray(p.crossNumbers) &&
+                        p.crossNumbers.some((cross: string) =>
+                            cross.toLowerCase().includes(term)
+                        )
+                    )
+                );
+            });
+        }
+
+        if (filters.brand) {
+            result = result.filter((p: Product) => p.brand === filters.brand);
+        }
+
+        if (filters.onlyInStock) {
+            result = result.filter((p: Product) => p.stock > 0);
+        }
+
+        if (filters.sort === "price_asc") {
+            result.sort((a, b) => Number(a.price) - Number(b.price));
+        } else if (filters.sort === "price_desc") {
+            result.sort((a, b) => Number(b.price) - Number(a.price));
+        }
+
+        return result;
+    }, [allProducts, filters.search, filters.brand, filters.onlyInStock, filters.sort]);
+
+    const totalItems = filteredAndSorted.length;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Важно: если текущая страница больше возможной — сбрасываем на 1
+    const safeCurrentPage = Math.min(currentPage, totalPages || 1);
+
+    const paginatedProducts = filteredAndSorted.slice(
+        (safeCurrentPage - 1) * limit,
+        safeCurrentPage * limit
+    );
+
+    // Сброс страницы на 1 при изменении фильтров
+    useEffect(() => {
+        if (currentPage > 1 && filters.search) {
+            changePage(1);
+        }
+    }, [filters.search, currentPage, changePage]);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, [safeCurrentPage]);
+
+    if (productsLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+                <div className="text-white text-xl">Загрузка каталога...</div>
+            </div>
+        );
+    }
 
     return (
         <>
             <Navbar onSearchChange={handleSearchChange} searchValue={filters.search} />
 
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
-                    <div className="lg:w-80 flex-shrink-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+                    <div className={`w-full lg:w-80 flex-shrink-0 ${isFiltersOpen ? 'block' : 'hidden lg:block'}`}>
                         <Filters
                             filters={filters}
                             setFilters={handleFilterChange}
                             resetFilters={handleReset}
-                            brands={brands}
+                            brands={[...new Set(allProducts.map((p: Product) => p.brand).filter(Boolean))]}
                         />
                     </div>
 
                     <div className="flex-1">
-                        <div className="mb-8 flex justify-between items-center">
-                            <h1 className="text-4xl font-bold">Каталог</h1>
-                            <p className="text-zinc-400">Найдено: {total} товаров</p>
+                        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <h1 className="text-3xl md:text-4xl font-bold">Каталог автозапчастей</h1>
+                            <p className="text-zinc-400">
+                                Найдено: <span className="text-cyan-300 font-medium">{totalItems}</span> товаров
+                            </p>
                         </div>
 
-                        {isLoading ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {Array.from({ length: 12 }).map((_, i) => (
-                                    <ProductCardSkeleton key={i} />
-                                ))}
+                        {paginatedProducts.length === 0 ? (
+                            <div className="text-center py-20 text-zinc-400">
+                                Ничего не найдено по вашему запросу
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {products.map((product:Product) => (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                                    {paginatedProducts.map((product: Product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
                                 </div>
 
                                 {totalPages > 1 && (
                                     <Pagination
-                                        currentPage={page}
+                                        currentPage={safeCurrentPage}
                                         totalPages={totalPages}
                                         onPageChange={changePage}
                                     />
@@ -98,6 +151,17 @@ export default function CatalogContent({ initialData }: { initialData: InitialDa
                     </div>
                 </div>
             </div>
+
+            {showFloatingButton && (
+                <button
+                    onClick={() => setIsFeedbackOpen(true)}
+                    className="hidden lg:block fixed bottom-8 right-8 border-2 border-cyan-500 hover:bg-cyan-500 text-white px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl z-50"
+                >
+                    💬 Оставить заявку
+                </button>
+            )}
+
+            <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
         </>
     );
 }

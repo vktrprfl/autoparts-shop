@@ -1,99 +1,117 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 import Navbar from "@/src/features/Navbar/components/Navbar";
-import { useProducts } from "@/src/hooks/useProducts";
+import { useAllProducts } from "@/src/hooks/useAllProducts";
+import { useCatalogFilters } from "@/src/hooks/useCatalogFilters";
+import { useFloatingButton } from "@/src/hooks/useFloatingButton";
+
 import Filters from "@/src/features/catalog/components/Filters";
 import ProductCard from "@/src/features/catalog/components/ProductCard";
 import ProductCardSkeleton from "@/src/features/catalog/components/ProductCardSkeleton";
 import Pagination from "@/src/features/catalog/components/Pagination";
 import FeedbackModal from "@/src/features/feedback/components/FeedbackModal";
-import { SlidersHorizontal, MessageCircle } from "lucide-react";
 
-import { useCatalogFilters } from "@/src/hooks/useCatalogFilters";
-import { useFloatingButton } from "@/src/hooks/useFloatingButton";
-import { useBrands } from "@/features/catalog/hooks/useBrands";
+import { SlidersHorizontal, MessageCircle } from "lucide-react";
 import { Product } from "@/types";
 
 export default function HomeContent() {
-    const pathname = usePathname();
-
-    // Защита: если компонент случайно попал не на /catalog — ничего не рендерим
-    if (pathname !== "/catalog") {
-        return null;
-    }
-
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     const showFloatingButton = useFloatingButton();
+    const searchParams = useSearchParams();
 
-    const {
-        filters,
-        handleSearchChange,
-        handleFilterChange,
-        handleReset,
-        changePage,
-    } = useCatalogFilters();
+    const { filters, handleSearchChange, handleFilterChange, handleReset, changePage } =
+        useCatalogFilters();
 
-    // Основной запрос товаров
-    const { data, isLoading, isFetching } = useProducts(filters);
+    const { data: allProducts = [], isLoading: productsLoading, isError } = useAllProducts();
 
-    // Запрос брендов (кэшируется отдельно)
-    const { data: brands = [], isLoading: brandsLoading } = useBrands();
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const limit = 12;
 
-    const products = data?.products || [];
-    const totalPages = data?.totalPages || 1;
-    const currentPage = data?.page || 1;
-    const totalItems = data?.total || 0;
+    // Клиентская фильтрация
+    const filteredAndSorted = useMemo(() => {
+        if (!allProducts?.length) return [];
 
-    // Scroll to top только при смене страницы
+        let result = [...allProducts];
+        const searchTerm = filters.search?.toLowerCase().trim();
+
+        if (searchTerm) {
+            result = result.filter((p: Product) => {
+                const term = searchTerm;
+                return (
+                    p.name?.toLowerCase().includes(term) ||
+                    p.oem?.toLowerCase().includes(term) ||
+                    p.brand?.toLowerCase().includes(term) ||
+                    (Array.isArray(p.crossNumbers) &&
+                        p.crossNumbers.some((cross: string) => cross.toLowerCase().includes(term)))
+                );
+            });
+        }
+
+        if (filters.brand) {
+            result = result.filter((p: Product) => p.brand === filters.brand);
+        }
+
+        if (filters.onlyInStock) {
+            result = result.filter((p: Product) => p.stock > 0);
+        }
+
+        if (filters.sort === "price_asc") {
+            result.sort((a, b) => Number(a.price) - Number(b.price));
+        } else if (filters.sort === "price_desc") {
+            result.sort((a, b) => Number(b.price) - Number(a.price));
+        }
+
+        return result;
+    }, [allProducts, filters]);
+
+    const totalItems = filteredAndSorted.length;
+    const totalPages = Math.ceil(totalItems / limit);
+    const paginatedProducts = filteredAndSorted.slice(
+        (currentPage - 1) * limit,
+        currentPage * limit
+    );
+
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }, [currentPage]);
 
+    // ==================== ОТЛАДКА ====================
+    console.log("allProducts length:", allProducts.length);
+    console.log("isLoading:", productsLoading);
+    console.log("isError:", isError);
+
+    if (productsLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+                <div className="text-white text-xl">Загрузка каталога...</div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return <div className="text-red-500 p-8">Ошибка загрузки товаров</div>;
+    }
+
     return (
         <>
-            <Navbar
-                onSearchChange={handleSearchChange}
-                searchValue={filters.search}
-            />
+            <Navbar onSearchChange={handleSearchChange} searchValue={filters.search} />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10">
-                {/* Мобильные кнопки */}
-                <div className="lg:hidden flex gap-3 mb-6">
-                    <button
-                        onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 px-5 py-3.5 rounded-2xl transition-colors font-medium"
-                    >
-                        <SlidersHorizontal className="w-5 h-5" />
-                        Фильтры
-                    </button>
-
-                    <button
-                        onClick={() => setIsFeedbackOpen(true)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-600 px-5 py-3.5 rounded-2xl transition-colors font-medium text-white"
-                    >
-                        <MessageCircle className="w-5 h-5" />
-                        Заявка
-                    </button>
-                </div>
-
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-                    {/* Фильтры */}
-                    <div className={`w-full lg:w-80 flex-shrink-0 transition-all duration-300 ${isFiltersOpen ? 'block' : 'hidden lg:block'}`}>
+                    <div className={`w-full lg:w-80 flex-shrink-0 ${isFiltersOpen ? 'block' : 'hidden lg:block'}`}>
                         <Filters
                             filters={filters}
                             setFilters={handleFilterChange}
                             resetFilters={handleReset}
-                            brands={brands}
-                            // isLoading={brandsLoading}
+                            brands={[...new Set(allProducts.map((p: Product) => p.brand).filter(Boolean))]}
                         />
                     </div>
 
-                    {/* Основная часть */}
                     <div className="flex-1">
                         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <h1 className="text-3xl md:text-4xl font-bold">Каталог автозапчастей</h1>
@@ -102,32 +120,24 @@ export default function HomeContent() {
                             </p>
                         </div>
 
-                        {isLoading || isFetching ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                                {Array.from({ length: 9 }).map((_, i) => (
-                                    <ProductCardSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : products.length === 0 ? (
+                        {paginatedProducts.length === 0 ? (
                             <div className="text-center py-20 text-zinc-400">
                                 Ничего не найдено по вашему запросу
                             </div>
                         ) : (
                             <>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                                    {products.map((product: Product) => (
+                                    {paginatedProducts.map((product: Product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
                                 </div>
 
                                 {totalPages > 1 && (
-                                    <div id="pagination" className="mt-20">
-                                        <Pagination
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            onPageChange={changePage}
-                                        />
-                                    </div>
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={changePage}
+                                    />
                                 )}
                             </>
                         )}
@@ -135,20 +145,16 @@ export default function HomeContent() {
                 </div>
             </div>
 
-            {/* Floating button */}
             {showFloatingButton && (
                 <button
                     onClick={() => setIsFeedbackOpen(true)}
-                    className="hidden lg:block fixed bottom-8 right-8 border-2 border-cyan-500 hover:bg-cyan-500 hover:text-white px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl transition-all active:scale-95 z-50 font-medium text-base"
+                    className="hidden lg:block fixed bottom-8 right-8 border-2 border-cyan-500 hover:bg-cyan-500 text-white px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl z-50"
                 >
                     💬 Оставить заявку
                 </button>
             )}
 
-            <FeedbackModal
-                isOpen={isFeedbackOpen}
-                onClose={() => setIsFeedbackOpen(false)}
-            />
+            <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
         </>
     );
 }

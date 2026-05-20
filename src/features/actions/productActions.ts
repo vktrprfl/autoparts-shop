@@ -167,3 +167,69 @@ export async function getProductsServer(
     };
 }
 
+// export async function searchProducts(term: string, limit = 24) {
+//     if (!term?.trim()) {
+//         return getProductsServer({ page: 1, limit: 12 });
+//     }
+//
+//     const searchTerm = term.toLowerCase().trim();
+//
+//     const [products, total] = await Promise.all([
+//         prisma.product.findMany({
+//             where: {
+//                 searchText: {
+//                     contains: searchTerm,   // простой поиск
+//                     mode: "insensitive"
+//                 }
+//             },
+//             orderBy: { createdAt: 'desc' },
+//             take: limit,
+//             select: {
+//                 id: true,
+//                 name: true,
+//                 oem: true,
+//                 price: true,
+//                 brand: true,
+//                 stock: true,
+//                 images: true,
+//             }
+//         }),
+//         prisma.product.count({
+//             where: {
+//                 searchText: {
+//                     contains: searchTerm,
+//                     mode: "insensitive"
+//                 }
+//             }
+//         })
+//     ]);
+//
+//     return {
+//         products: toPlain(products),
+//         total,
+//         page: 1,
+//         totalPages: Math.ceil(total / limit),
+//     };
+// }
+
+
+export async function getAllLightProducts() {
+    const products = await prisma.product.findMany({
+        select: {
+            id: true,
+            name: true,
+            oem: true,
+            price: true,
+            brand: true,
+            stock: true,
+            images: true,
+            crossNumbers: true,
+        },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    return toPlain(products);
+}
+
+
+
