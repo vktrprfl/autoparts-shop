@@ -2,8 +2,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "@/src/store/useAuthStore";
-import { createClient } from "@/src/lib/supabase/client";
+import {useAuthStore} from "@/store/useAuthStore";
+import {createClient} from "@/lib/supabase/client";
+
+
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
     const { loadUser } = useAuthStore();

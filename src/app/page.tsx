@@ -1,8 +1,9 @@
 // app/page.tsx
 import { Suspense } from 'react';
-import Hero from "@/src/features/home/Hero";           // ← создадим
-import FeaturedProducts from "@/src/features/home/FeaturedProducts"; // ← создадим
-import BrandsSection from "@/src/features/home/BrandsSection";     // ← создадим
+import Hero from "@/features/home/Hero";
+import FeaturedProducts from "@/features/home/FeaturedProducts";
+import BrandsSection from "@/features/home/BrandsSection";
+  // ← создадим
 
 
 export default function HomePage() {

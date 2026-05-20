@@ -7,7 +7,7 @@ import {toPlain} from "@/lib/utils/toPlain";
 
 export async function getProducts(filters: ProductsFilter & { page?: number; limit?: number }) {
     const page = filters.page || 1;
-    const limit = filters.limit || 12;
+    const limit = filters.limit || 8;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -15,11 +15,9 @@ export async function getProducts(filters: ProductsFilter & { page?: number; lim
     if (filters.search?.trim()) {
         const term = filters.search.trim();
         where.OR = [
-            { name:        { contains: term, mode: "insensitive" } },
-            { oem:         { contains: term, mode: "insensitive" } },
-            { brand:       { contains: term, mode: "insensitive" } },
-            { description: { contains: term, mode: "insensitive" } },
-            { searchText:  { contains: term, mode: "insensitive" } },
+            { name: { contains: term, mode: "insensitive" } },
+            { oem: { contains: term, mode: "insensitive" } },
+            { brand: { contains: term, mode: "insensitive" } },
         ];
     }
 
@@ -43,43 +41,57 @@ export async function getProducts(filters: ProductsFilter & { page?: number; lim
                 price: true,
                 brand: true,
                 stock: true,
-                // images: true,
-                // description: true,
-                // crossNumbers: true,
+                images: true,
             }
         }),
         prisma.product.count({ where }),
     ]);
 
     return {
-        products: toPlain(products),        // ← КРИТИЧНО
+        products: toPlain(products),
         total,
         page,
         totalPages: Math.ceil(total / limit),
     };
 }
 
+// export async function getBrands() {
+//     const brands = await prisma.product.findMany({
+//         where: { brand: { not: undefined } },
+//         select: { brand: true },
+//         distinct: ['brand'],
+//         orderBy: { brand: 'asc' }
+//     });
+//
+//     return brands.map(item => item.brand).filter(Boolean);
+// }
+
 export async function getBrands() {
     const brands = await prisma.product.findMany({
         where: { brand: { not: undefined } },
         select: { brand: true },
         distinct: ['brand'],
-        orderBy: { brand: 'asc' }
+        orderBy: { brand: 'asc' },
     });
 
     return brands.map(item => item.brand).filter(Boolean);
 }
 
 export async function getProduct(id: string) {
-    const product = await prisma.product.findUnique({
-        where: { id },
-    });
+    try {
+        const product = await prisma.product.findUnique({
+            where: { id },
+        });
 
-    if (!product) {
-        throw new Error("Товар не найден");
+        if (!product) {
+            throw new Error("Товар не найден");
+        }
+
+        return toPlain(product);
+    } catch (error) {
+        console.error("getProduct error:", error);
+        throw error;
     }
-
-    return toPlain(product);
 }
 
 export async function getFeaturedProducts() {
@@ -99,4 +111,5 @@ export async function getFeaturedProducts() {
 
     return { products: toPlain(products) };
 }
+
 

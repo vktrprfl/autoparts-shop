@@ -1,6 +1,8 @@
 "use client";
 
-import {useState, useMemo, useEffect} from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+
 import Navbar from "@/src/features/Navbar/components/Navbar";
 import { useProducts } from "@/src/hooks/useProducts";
 import Filters from "@/src/features/catalog/components/Filters";
@@ -12,14 +14,22 @@ import { SlidersHorizontal, MessageCircle } from "lucide-react";
 
 import { useCatalogFilters } from "@/src/hooks/useCatalogFilters";
 import { useFloatingButton } from "@/src/hooks/useFloatingButton";
-import {useBrands} from "@/features/catalog/hooks/useBrands";
-import {Product} from "@/types";
+import { useBrands } from "@/features/catalog/hooks/useBrands";
+import { Product } from "@/types";
 
 export default function HomeContent() {
+    const pathname = usePathname();
+
+    // Защита: если компонент случайно попал не на /catalog — ничего не рендерим
+    if (pathname !== "/catalog") {
+        return null;
+    }
+
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     const showFloatingButton = useFloatingButton();
+
     const {
         filters,
         handleSearchChange,
@@ -28,27 +38,28 @@ export default function HomeContent() {
         changePage,
     } = useCatalogFilters();
 
-    const { data, isLoading } = useProducts(filters);
+    // Основной запрос товаров
+    const { data, isLoading, isFetching } = useProducts(filters);
 
+    // Запрос брендов (кэшируется отдельно)
     const { data: brands = [], isLoading: brandsLoading } = useBrands();
 
     const products = data?.products || [];
     const totalPages = data?.totalPages || 1;
     const currentPage = data?.page || 1;
+    const totalItems = data?.total || 0;
 
+    // Scroll to top только при смене страницы
     useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: 'instant',
-        });
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }, [currentPage]);
-
-
 
     return (
         <>
-            <Navbar onSearchChange={handleSearchChange} searchValue={filters.search} />
+            <Navbar
+                onSearchChange={handleSearchChange}
+                searchValue={filters.search}
+            />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10">
                 {/* Мобильные кнопки */}
@@ -63,7 +74,7 @@ export default function HomeContent() {
 
                     <button
                         onClick={() => setIsFeedbackOpen(true)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-500  px-5 py-3.5 rounded-2xl transition-colors font-medium text-white"
+                        className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-600 px-5 py-3.5 rounded-2xl transition-colors font-medium text-white"
                     >
                         <MessageCircle className="w-5 h-5" />
                         Заявка
@@ -71,24 +82,27 @@ export default function HomeContent() {
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+                    {/* Фильтры */}
                     <div className={`w-full lg:w-80 flex-shrink-0 transition-all duration-300 ${isFiltersOpen ? 'block' : 'hidden lg:block'}`}>
                         <Filters
                             filters={filters}
                             setFilters={handleFilterChange}
                             resetFilters={handleReset}
                             brands={brands}
+                            // isLoading={brandsLoading}
                         />
                     </div>
 
+                    {/* Основная часть */}
                     <div className="flex-1">
                         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <h1 className="text-3xl md:text-4xl font-bold">Каталог автозапчастей</h1>
                             <p className="text-zinc-400">
-                                Найдено: <span className="text-cyan-300 font-medium">{data?.total || 0}</span> товаров
+                                Найдено: <span className="text-cyan-300 font-medium">{totalItems}</span> товаров
                             </p>
                         </div>
 
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                                 {Array.from({ length: 9 }).map((_, i) => (
                                     <ProductCardSkeleton key={i} />
@@ -101,7 +115,7 @@ export default function HomeContent() {
                         ) : (
                             <>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                                    {products.map((product:Product) => (
+                                    {products.map((product: Product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
                                 </div>
@@ -121,15 +135,15 @@ export default function HomeContent() {
                 </div>
             </div>
 
+            {/* Floating button */}
             {showFloatingButton && (
                 <button
                     onClick={() => setIsFeedbackOpen(true)}
-                    className="hidden lg:block fixed bottom-8 right-8 border-2  border-cyan-500  hover:bg-cyan-500 text-white px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl transition-all active:scale-95 z-50 font-medium text-base"
+                    className="hidden lg:block fixed bottom-8 right-8 border-2 border-cyan-500 hover:bg-cyan-500 hover:text-white px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl transition-all active:scale-95 z-50 font-medium text-base"
                 >
                     💬 Оставить заявку
                 </button>
             )}
-
 
             <FeedbackModal
                 isOpen={isFeedbackOpen}
