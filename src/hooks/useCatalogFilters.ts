@@ -10,7 +10,6 @@ export function useCatalogFilters() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
 
-    // Инициализация фильтров из URL
     const [filters, setFilters] = useState<ProductsFilter>({
         search: searchParams.get("search") || "",
         brand: searchParams.get("brand") || "",
@@ -18,15 +17,14 @@ export function useCatalogFilters() {
         sort: (searchParams.get("sort") as any) || "default",
     });
 
-    // Принудительный редирект на /catalog, если пришли с параметрами на главную
+    // Автоматический редирект на /catalog при наличии параметров
     useEffect(() => {
-        if (pathname === "/" && searchParams.toString()) {
+        if (pathname === "/" && (searchParams.toString() || filters.search)) {
             router.replace(`/catalog?${searchParams.toString()}`);
         }
-    }, [pathname, searchParams, router]);
+    }, [pathname, searchParams, router, filters.search]);
 
-    // Удобная функция для создания query string
-    const createQueryString = useCallback((updates: Record<string, string | null | undefined>) => {
+    const createQueryString = useCallback((updates: Record<string, string | null>) => {
         const params = new URLSearchParams(searchParams.toString());
 
         Object.entries(updates).forEach(([key, value]) => {
@@ -71,14 +69,12 @@ export function useCatalogFilters() {
     }, [router, createQueryString]);
 
     const handleReset = useCallback(() => {
-        const resetFilters: ProductsFilter = {
+        setFilters({
             search: "",
             brand: "",
             onlyInStock: false,
             sort: "default",
-        };
-        setFilters(resetFilters);
-
+        });
         router.push('/catalog', { scroll: false });
     }, [router]);
 

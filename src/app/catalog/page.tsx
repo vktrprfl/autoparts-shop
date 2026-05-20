@@ -1,18 +1,19 @@
-'use client';
-
+// app/catalog/page.tsx
 import { Suspense } from 'react';
-import HomeContent from "@/features/home/HomeContent";
+import CatalogContent from '@/features/catalog/components/CatalogContent';
+import { getProductsServer } from '@/features/actions/productActions';
+import CatalogSkeleton from "@/features/catalog/components/CatalogSkeleton";
 
+export default async function CatalogPage() {
+    // Загружаем только первую страницу на сервере
+    const initialData = await getProductsServer({
+        page: 1,
+        limit: 12,
+    });
 
-
-export default function HomePage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-                <div className="text-white text-xl">Загрузка магазина...</div>
-            </div>
-        }>
-            <HomeContent />
+        <Suspense fallback={<CatalogSkeleton />}>
+            <CatalogContent initialData={initialData} />
         </Suspense>
     );
 }
