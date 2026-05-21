@@ -1,5 +1,5 @@
 // src/app/admin/layout.tsx  (или app/admin/layout.tsx)
-"use client";
+
 
 import { useState } from "react";
 import AdminMobileHeader from "@/features/admin/components/AdminMobileHeader";

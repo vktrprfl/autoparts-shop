@@ -8,6 +8,7 @@ import CartDrawer from "@/src/features/Navbar/components/cart/CartModal";
 
 interface ProductActionsProps {
     product: Product;
+    className?: string;
 }
 
 export default function ProductActions({ product }: ProductActionsProps) {

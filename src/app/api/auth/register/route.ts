@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req: NextRequest) {
-    console.log("🚀 [REGISTER] Запрос получен");
+    console.log("[REGISTER] Запрос получен");
 
     try {
         const { name, email, password } = await req.json();
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (!JWT_SECRET) {
-            console.error("❌ JWT_SECRET не задан в .env!");
+            console.error("JWT_SECRET не задан в .env!");
             return NextResponse.json({ success: false, error: "Ошибка сервера (JWT)" }, { status: 500 });
         }
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
             }
         });
 
-        console.log("✅ Пользователь создан! ID:", user.id);
+        console.log("Пользователь создан! ID:", user.id);
 
         // Автоматический вход
         const sessionToken = sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
             path: '/',
         });
 
-        console.log("🔑 Сессия успешно установлена");
+        console.log("Сессия успешно установлена");
 
         return NextResponse.json({
             success: true,
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error: any) {
-        console.error("💥 Ошибка регистрации:", error);
+        console.error("Ошибка регистрации:", error);
         return NextResponse.json({
             success: false,
             error: "Внутренняя ошибка сервера"

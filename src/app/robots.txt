@@ -1,0 +1,23 @@
+# robots.txt для AutoForge
+
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию технических и служебных страниц
+Disallow: /api/
+Disallow: /_next/
+Disallow: /_vercel/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /private/
+Disallow: /cart-success
+
+# Запрещаем дублирующиеся страницы
+Disallow: /*?focus=search
+Disallow: /*?page=*
+
+# Разрешаем индексацию товаров и каталога
+Allow: /catalog
+Allow: /products/
+
+Sitemap: https://auto-parts-beige.vercel.app/sitemap.xml
