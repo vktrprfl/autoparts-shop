@@ -1,46 +1,39 @@
-// src/app/admin/layout.tsx  (или app/admin/layout.tsx)
-
-
-import { useState } from "react";
+// app/admin/layout.tsx
+import { redirect } from "next/navigation";
 import AdminMobileHeader from "@/features/admin/components/AdminMobileHeader";
 import AdminSidebar from "@/features/admin/components/AdminSidebar";
+import { createServerClientFn } from "@/lib/supabase/server";
+import AdminMobileHeaderWrapper from "@/features/admin/components/AdminMobileSidebarWrapper";
 
-
-export default function AdminLayout({
-                                        children,
-                                    }: {
+export default async function AdminLayout({
+                                              children,
+                                          }: {
     children: React.ReactNode;
 }) {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    // const supabase = await createServerClientFn();
+    // const { data: { user } } = await supabase.auth.getUser();
+    //
+    // if (!user) {
+    //     redirect("/auth/login");
+    // }
 
     return (
         <div className="flex min-h-screen bg-zinc-950">
-            {/* Боковая панель — скрывается на мобильных */}
-            <div className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 transition-transform duration-300`}>
-                <AdminSidebar onClose={() => setSidebarOpen(false)} />
+            {/* Десктопный сайдбар (только на больших экранах) */}
+            <div className="hidden lg:block w-72 border-r border-zinc-800 flex-shrink-0">
+                <AdminSidebar />
             </div>
 
-            {/* Основное содержание */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {/* Мобильный хедер с бургером */}
-                <AdminMobileHeader
-                    onBurgerClick={() => setSidebarOpen(true)}
-                />
+            {/* Основная область */}
+            <div className="flex-1 flex flex-col min-w-0 w-full">
+                {/* Хедер с бургером (только на мобильных) */}
+                <AdminMobileHeaderWrapper/>
 
                 {/* Контент */}
                 <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
                     {children}
                 </main>
             </div>
-
-            {/* Затемнение при открытом меню на мобильных */}
-            {sidebarOpen && (
-                <div
-                    className="lg:hidden fixed inset-0 bg-black/70 z-40"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
         </div>
     );
 }
