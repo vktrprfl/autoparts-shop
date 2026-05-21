@@ -12,7 +12,7 @@ export function useCatalogFilters() {
     const pathname = usePathname();
 
     const [rawSearch, setRawSearch] = useState(searchParams.get("search") || "");
-    const debouncedSearch = useDebounce(rawSearch, 5);
+    const debouncedSearch = useDebounce(rawSearch, 1);
 
     // Основное состояние фильтров (синхронизируем с URL)
     const [filters, setFilters] = useState<ProductsFilter>({

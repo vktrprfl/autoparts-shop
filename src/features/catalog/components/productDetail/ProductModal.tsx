@@ -108,6 +108,23 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                             <p className="text-zinc-400 mt-1">{product.brand}</p>
                         </div>
 
+                        <div className="pb-6">
+                            {/* Характеристики */}
+                            {product.specifications && Object.keys(product.specifications).length > 0 && (
+                                <div className="mt-10">
+                                    <h3 className="uppercase text-xs tracking-widest text-zinc-500 mb-4">Характеристики</h3>
+                                    <div className="space-y-3 text-sm">
+                                        {Object.entries(product.specifications).map(([key, value]) => (
+                                            <div key={key} className="flex justify-between border-b border-zinc-800 pb-2">
+                                                <span className="text-zinc-400">{key}</span>
+                                                <span className="text-white text-right">{String(value)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Цена и наличие */}
                         <div className="flex items-end gap-4 mb-8">
                             <p className="text-4xl font-bold">
@@ -140,7 +157,11 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                             </button>
                         </div>
 
+
+
                         <div className="pt-8">
+
+
                             {activeTab === "description" && (
                                 <div className="prose prose-invert text-zinc-300 leading-relaxed">
                                     {product.description || <p className="text-zinc-500 italic">Описание отсутствует</p>}
@@ -165,20 +186,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                             )}
                         </div>
 
-                        {/* Характеристики */}
-                        {product.specifications && Object.keys(product.specifications).length > 0 && (
-                            <div className="mt-10">
-                                <h3 className="uppercase text-xs tracking-widest text-zinc-500 mb-4">Характеристики</h3>
-                                <div className="space-y-3 text-sm">
-                                    {Object.entries(product.specifications).map(([key, value]) => (
-                                        <div key={key} className="flex justify-between border-b border-zinc-800 pb-2">
-                                            <span className="text-zinc-400">{key}</span>
-                                            <span className="text-white text-right">{String(value)}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
                     </div>
                 </div>
             </div>

@@ -11,8 +11,8 @@ export default function Hero() {
 
             <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6">
-                    Автозапчасти<br />
-                    <span className="text-cyan-400">с доставкой</span>
+                    Качественные запчасти<br />
+                    <span className="text-cyan-400">с гарантией</span>
                 </h1>
 
                 <p className="text-xl md:text-2xl text-zinc-400 mb-10 max-w-2xl mx-auto">
@@ -29,17 +29,14 @@ export default function Hero() {
                     </Link>
 
                     <Link
-                        href="/catalog"
+                        href="/catalog?focus=search"
                         className="px-10 py-4 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-lg font-medium transition-colors"
                     >
-                        Подобрать по авто
+                        Найти нужную деталь по OEM
                     </Link>
                 </div>
             </div>
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-500 text-sm flex items-center gap-2">
-                Листайте вниз ↓
-            </div>
         </div>
     );
 }

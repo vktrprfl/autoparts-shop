@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { ShoppingCart, User, LogOut, UserCircle } from "lucide-react";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useAuthStore } from "@/src/store/useAuthStore";
-import { useRouter } from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import { Menu, Transition } from "@headlessui/react";
 import CartModal from "./cart/CartModal";
 import AuthModal from "../../auth/components/AuthModal";
@@ -20,11 +20,12 @@ interface NavbarProps {
 export default function Navbar({ onSearchChange, searchValue }: NavbarProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isAuthOpen, setIsAuthOpen] = useState(false);
+    const searchParams = useSearchParams();
 
     const { user, logout } = useAuthStore();
     const totalItems = useCartStore((state) => state.totalItems());
     const router = useRouter();
-
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const handleLogout = async () => {
         await logout();
         toast.success("Вы успешно вышли из аккаунта");
@@ -42,6 +43,14 @@ export default function Navbar({ onSearchChange, searchValue }: NavbarProps) {
     const userSubtitle = isTelegramUser
         ? `@${user?.username || 'telegram'}`
         : user?.email?.split('@')[0] || '';
+
+    useEffect(() => {
+        if (searchParams.get('focus') === 'search') {
+            setTimeout(() => {
+                searchInputRef.current?.focus();
+            }, 300);
+        }
+    }, [searchParams]);
 
     return (
         <>
@@ -74,7 +83,7 @@ export default function Navbar({ onSearchChange, searchValue }: NavbarProps) {
 
                         {/* Поиск */}
                         <div className="hidden md:block flex-1 max-w-xl mx-8">
-                            <SearchInput value={searchValue} onChange={onSearchChange} />
+                            <SearchInput ref={searchInputRef} value={searchValue} onChange={onSearchChange} />
                         </div>
 
                         {/* Правая часть */}

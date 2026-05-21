@@ -13,7 +13,7 @@ async function BrandsContent() {
                     {brands.slice(0, 24).map((brand: string) => (
                         <div
                             key={brand}
-                            className="bg-zinc-950 border border-zinc-800 hover:border-cyan-500/30 rounded-2xl py-6 text-center font-medium transition-all hover:scale-105"
+                            className="bg-zinc-950 border cursor-pointer border-zinc-800 hover:border-cyan-500/30 rounded-2xl py-6 text-center font-medium transition-all hover:scale-105"
                         >
                             {brand}
                         </div>

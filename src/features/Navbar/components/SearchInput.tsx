@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Search, X } from "lucide-react";
+import { forwardRef } from 'react';
+import { Search, X } from 'lucide-react';
 
 interface SearchInputProps {
     value: string;
@@ -9,13 +9,11 @@ interface SearchInputProps {
     placeholder?: string;
 }
 
-export default function SearchInput({
-                                        value,
-                                        onChange,
-                                        placeholder = "Поиск по названию, OEM, бренду, кросс-номеру или автомобилю..."
-                                    }: SearchInputProps) {
-    const [isFocused, setIsFocused] = useState(false);
-
+const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
+                                                                        value,
+                                                                        onChange,
+                                                                        placeholder = "Поиск по названию, OEM, бренду, кросс-номеру или автомобилю..."
+                                                                    }, ref) => {
     return (
         <div className="relative w-full max-w-2xl">
             <div className="relative group">
@@ -23,11 +21,10 @@ export default function SearchInput({
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 pointer-events-none transition-colors group-focus-within:text-cyan-400" />
 
                 <input
+                    ref={ref}                    // ← Вот это было нужно
                     type="text"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
                     placeholder={placeholder}
                     autoComplete="off"
                     className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl
@@ -52,4 +49,8 @@ export default function SearchInput({
             </div>
         </div>
     );
-}
+});
+
+SearchInput.displayName = 'SearchInput';
+
+export default SearchInput;
