@@ -19,15 +19,9 @@ export function useImportProductsMutation() {
             queryClient.invalidateQueries({ queryKey: ['products'] });
             queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
 
-            toast.success(
-                `Импорт успешно завершён!\n` +
-                `✅ Добавлено: ${data.added} | ` +
-                `🔄 Обновлено: ${data.updated}`
-            );
         },
 
         onError: (err: any) => {
-            toast.error(err.message || "Ошибка импорта товаров");
-        },
+            toast.error(err.message || "Ошибка импорта товаров");        },
     });
 }
