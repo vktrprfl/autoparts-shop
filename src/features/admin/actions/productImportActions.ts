@@ -14,7 +14,6 @@ export async function importProducts(productsInput: any[]) {
         const preparedMap = new Map<string, any>();
         let skipped = 0;
 
-        // Подготовка данных
         for (const p of productsInput) {
             const oem = p.oem?.toString().trim().toUpperCase();
 
@@ -57,19 +56,17 @@ export async function importProducts(productsInput: any[]) {
 
         const prepared = Array.from(preparedMap.values());
 
-        // 1. Деактивируем товары, которых нет в новом прайсе
+        // Деактивация отсутствующих товаров
         if (oemsInNewFile.size > 0) {
-            const deactivatedResult = await client.query(`
+            await client.query(`
                 UPDATE "products" 
                 SET active = false, "updatedAt" = NOW()
                 WHERE oem NOT IN (${Array.from(oemsInNewFile).map((_, i) => `$${i+1}`).join(',')})
                   AND active = true
             `, Array.from(oemsInNewFile));
-
-            console.log(`🔴 Деактивировано товаров: ${deactivatedResult.rowCount}`);
         }
 
-        // 2. Добавляем / обновляем товары из Excel
+        // Добавление / обновление
         if (prepared.length > 0) {
             const valuesPlaceholders = prepared.map((_, idx) => {
                 const base = idx * 13;
@@ -80,7 +77,7 @@ export async function importProducts(productsInput: any[]) {
 
             const flatValues = prepared.flatMap(item => [
                 item.id, item.oem, item.name, item.brand, item.price, item.stock,
-                item.category, item.description, [], // images
+                item.category, item.description, [],
                 item.applicability, item.crossNumbers, item.specifications, item.searchText
             ]);
 
@@ -90,19 +87,20 @@ export async function importProducts(productsInput: any[]) {
                     applicability, "crossNumbers", specifications, "searchText", "updatedAt"
                 )
                 VALUES ${valuesPlaceholders}
-                ON CONFLICT (oem) DO UPDATE SET
+                    ON CONFLICT (oem) DO UPDATE SET
                     name = EXCLUDED.name,
-                    brand = EXCLUDED.brand,
-                    price = EXCLUDED.price,
-                    stock = EXCLUDED.stock,
-                    category = EXCLUDED.category,
-                    description = EXCLUDED.description,
-                    applicability = EXCLUDED.applicability,
-                    "crossNumbers" = EXCLUDED."crossNumbers",
-                    specifications = EXCLUDED.specifications,
-                    "searchText" = EXCLUDED."searchText",
-                    active = true,                    -- активируем обратно
-                    "updatedAt" = NOW()
+                                             brand = EXCLUDED.brand,
+                                             price = EXCLUDED.price,
+                                             stock = EXCLUDED.stock,
+                                             category = EXCLUDED.category,
+                                             description = EXCLUDED.description,
+                                             applicability = EXCLUDED.applicability,
+                                             "crossNumbers" = EXCLUDED."crossNumbers",
+                                             specifications = EXCLUDED.specifications,
+                                             "searchText" = EXCLUDED."searchText",
+                                             active = true,
+                                             "updatedAt" = NOW()
+                -- images намеренно НЕ обновляется!
             `, flatValues);
         }
 
@@ -114,7 +112,7 @@ export async function importProducts(productsInput: any[]) {
 
         return {
             success: true,
-            added: prepared.length,   
+            added: prepared.length,
             updated: 0,
             skipped,
             total: productsInput.length,
