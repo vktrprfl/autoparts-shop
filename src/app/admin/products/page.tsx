@@ -6,8 +6,11 @@ import ImportProductsModal from "@/src/features/admin/components/import/ImportPr
 import EditProductModal from "@/src/features/admin/components/EditProductModal";
 import BulkPhotoUploadModal from "@/src/features/admin/components/import/BulkPhotoUploadModal";
 import ProductImage from "@/features/admin/components/ProductImage";
+import {useAdminProducts} from "@/features/admin/hooks/useAdminProducts";
+import {useEffect} from "react";
 
 export default function AdminProducts() {
+    const {  refetch } = useAdminProducts();
     const {
         filteredProducts,
         isLoading,
@@ -26,6 +29,10 @@ export default function AdminProducts() {
         handleDeleteClick,
         confirmDelete,
     } = useAdminProductsPage();
+
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
 
     if (isLoading) {
         return <div className="text-center py-20 text-zinc-400">Загрузка товаров...</div>;

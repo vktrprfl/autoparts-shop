@@ -4,11 +4,14 @@
 import { Package} from "lucide-react";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useAdminProducts } from "@/features/admin/hooks/useAdminProducts";
+import {useEffect} from "react";
 
 export default function AdminDashboard() {
     const { user } = useAuthStore();
-    const { products } = useAdminProducts();
-
+    const { products, refetch } = useAdminProducts();
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
     return (
         <div className="px-4 sm:px-6 lg:px-8 py-6">
             {/* Заголовок */}

@@ -5,13 +5,14 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
 }
 
 // =============================================
+// Основные модели
+// =============================================
 
 model User {
-  id         String  @id @default(cuid())
+  id         String  @id
   telegramId String? @unique
   email      String? @unique
   password   String?
@@ -20,23 +21,44 @@ model User {
   avatarUrl  String?
   phone      String?
   provider   String?
+  role       String  @default("USER")
 
-  vehicles Vehicle[]
-  orders   Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
   ImportHistory ImportHistory[]
+  orders        Order[]
+  vehicles      Vehicle[]
 
   @@map("users")
 }
 
+model Product {
+  id             String   @id
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  name           String
+  oem            String   @unique
+  price          Decimal  @db.Decimal(10, 2)
+  category       String?
+  brand          String
+  stock          Int      @default(0)
+  images         String[] @default([])
+  applicability  String[] @default([])
+  crossNumbers   String[] @default([])
+  description    String?
+  specifications Json?
+  searchText     String?
+  active         Boolean  @default(true)
+
+  order_items OrderItem[]
+
+  @@map("products")
+}
+
 model Vehicle {
-  id     String @id @default(cuid())
-  userId String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id         String  @id
+  userId     String
   brand      String
   model      String
   year       Int
@@ -48,29 +70,28 @@ model Vehicle {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@map("vehicles")
 }
 
 model Order {
-  id String @id @default(cuid())
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-
+  id              String      @id
+  userId          String?
   customerName    String
   customerPhone   String
   customerEmail   String?
   deliveryAddress String
   comment         String?
-
-  totalAmount Decimal
-  status      OrderStatus @default(PENDING)
-
-  items OrderItem[]
+  totalAmount     Decimal
+  status          OrderStatus @default(PENDING)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime
+
+  items OrderItem[]
+  user  User?       @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([status])
@@ -79,91 +100,23 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
+  id        String  @id
   orderId   String
   productId String
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Restrict) // ← улучшено
+  product Product @relation(fields: [productId], references: [id])
 
   @@map("order_items")
 }
 
-model Product {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name     String
-  oem      String  @unique
-  price    Decimal @db.Decimal(10, 2) // ← изменил с Float на Decimal (рекомендую)
-  category String?
-  brand    String
-  stock    Int     @default(0)
-
-  images        String[] @default([])
-  applicability String[] @default([])
-  crossNumbers  String[] @default([])
-
-  description    String?
-  specifications Json?
-
-  searchText String?     @db.Text
-  active     Boolean     @default(true)
-  orderItems OrderItem[]
-
-  @@index([brand])
-  @@index([oem])
-  @@index([price])
-  @@index([createdAt])
-  @@index([searchText])
-  @@map("products")
-}
-
-model Feedback {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name     String?
-  phone    String
-  email    String?
-  vin      String?
-  carModel String?
-  message  String?
-
-  status   FeedbackStatus @default(NEW)
-  viewedAt DateTime?
-
-  @@map("feedbacks")
-}
-
-model MagicToken {
-  id    String @id @default(cuid())
-  token String @unique
-
-  telegramId String
-  name       String?
-  username   String?
-  avatarUrl  String?
-
-  expiresAt DateTime
-  used      Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-
-  @@index([token])
-  @@index([expiresAt])
-  @@map("magic_tokens")
-}
-
 model ImportHistory {
-  id         String   @id @default(cuid())
+  id         String   @id
   createdAt  DateTime @default(now())
   userId     String
-  type       String   @default("products") // "products" | "photos"
+  type       String   @default("products")
   fileName   String?
   totalRows  Int      @default(0)
   added      Int      @default(0)
@@ -178,7 +131,44 @@ model ImportHistory {
   @@index([createdAt])
   @@index([userId])
   @@index([type])
+  @@map("import_history")
 }
+
+model Feedback {
+  id        String         @id
+  createdAt DateTime       @default(now())
+  updatedAt DateTime
+  name      String?
+  phone     String
+  email     String?
+  vin       String?
+  carModel  String?
+  message   String?
+  status    FeedbackStatus @default(NEW)
+  viewedAt  DateTime?
+
+  @@map("feedbacks")
+}
+
+model MagicToken {
+  id         String   @id
+  token      String   @unique
+  telegramId String
+  name       String?
+  username   String?
+  avatarUrl  String?
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([expiresAt])
+  @@index([token])
+  @@map("magic_tokens")
+}
+
+// =============================================
+// Enums
+// =============================================
 
 enum OrderStatus {
   PENDING

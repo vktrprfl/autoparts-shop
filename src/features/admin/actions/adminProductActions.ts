@@ -11,6 +11,7 @@ export async function getAdminProducts(): Promise<Product[]> {
         const products = await prisma.product.findMany({
             where: { active: true },
             orderBy: { createdAt: 'desc' },
+            take: 100,
         });
 
         return toPlain(products);

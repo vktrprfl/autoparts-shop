@@ -4,11 +4,13 @@ import { useState } from "react";
 import AdminMobileHeader from "./AdminMobileHeader";
 import AdminSidebar from "./AdminSidebar";
 
+
 export default function AdminMobileHeaderWrapper() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
         <>
+
             {/* Мобильный хедер с бургером */}
             <AdminMobileHeader
                 onBurgerClick={() => setSidebarOpen(true)}

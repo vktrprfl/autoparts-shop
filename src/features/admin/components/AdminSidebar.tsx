@@ -5,6 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Package, LogOut, X } from "lucide-react";
 import { useAuthStore } from "@/src/store/useAuthStore";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "react-hot-toast";
+import {useQueryClient} from "@tanstack/react-query";
 
 const menuItems = [
     { href: "/admin/dashboard", label: "Дашборд", icon: LayoutDashboard },
@@ -17,7 +20,24 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ onClose }: AdminSidebarProps) {
     const pathname = usePathname();
-    const { logout, user } = useAuthStore();
+    const { user } = useAuthStore();
+
+    const handleLogout = async () => {
+        const supabase = createClient();
+
+        await supabase.auth.signOut({ scope: 'global' });
+
+        // Полная очистка
+        document.cookie.split(";").forEach(cookie => {
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+            if (name.startsWith("sb-")) {
+                document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
+            }
+        });
+
+        window.location.href = "/"; // жёсткий редирект
+    };
 
     return (
         <div className="w-72 bg-zinc-900 border-r border-zinc-800 h-full flex flex-col">
@@ -70,7 +90,7 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps) {
             {/* Кнопка выхода */}
             <div className="p-3 mt-auto">
                 <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-zinc-800 rounded-2xl transition-colors"
                 >
                     <LogOut className="w-5 h-5" />

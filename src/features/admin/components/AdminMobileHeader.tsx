@@ -4,6 +4,7 @@
 import { Menu } from "lucide-react";
 import {useState} from "react";
 
+
 interface AdminMobileHeaderProps {
     onBurgerClick: () => void;
 }
@@ -11,6 +12,7 @@ interface AdminMobileHeaderProps {
 export default function AdminMobileHeader({ onBurgerClick }: AdminMobileHeaderProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     return (
+
         <header className="lg:hidden bg-zinc-900 border-b border-zinc-800 px-4 py-4 flex items-center justify-between sticky top-0 z-50">
             <div className="flex items-center gap-3">
                 <button
