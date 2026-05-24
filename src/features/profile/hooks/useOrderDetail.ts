@@ -1,4 +1,4 @@
-// src/features/profile/hooks/useOrderDetail.ts
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/useCartStore";
@@ -23,7 +23,7 @@ export function useOrderDetail(order: any) {
             const product = products.find(
                 (p) => p.id === orderItem.id || p.oem === orderItem.article
             );
-
+            debugger
             const availableStock = product?.stock ?? 0;
 
             addItem({

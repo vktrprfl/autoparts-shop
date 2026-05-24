@@ -2,9 +2,8 @@
 
 import { useEffect } from "react";
 import { useProfileStore } from "@/src/store/useProfileStore";
-import { toast } from "react-hot-toast";
 import { RefreshCw, Package } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 
 export default function OrdersList() {
     const { orders, isLoading, loadOrders, repeatOrder } = useProfileStore();

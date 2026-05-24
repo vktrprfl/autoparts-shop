@@ -1,4 +1,3 @@
-// src/store/useProfileStore.ts
 import { create } from "zustand";
 import { getUserOrders } from "@/features/actions/orderActions";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -39,6 +38,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
     repeatOrder: async (orderId: string) => {
         const order = get().orders.find(o => o.id === orderId);
+
         if (!order?.items?.length) {
             toast.error("В заказе нет товаров");
             return false;
@@ -47,21 +47,55 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         try {
             const { addItem, openCart } = useCartStore.getState();
 
+            let addedCount = 0;
+            let unavailableCount = 0;
+            const unavailableNames: string[] = [];
+
             order.items.forEach((item: any) => {
-                addItem({
-                    id: item.id,
-                    name: item.name,
-                    oem: item.oem || "",
-                    price: item.price,
-                    image: item.image || "",
-                    stock: 999,
-                });
+                const productName = item.name || item.product?.name || "Товар";
+                const productOem = item.oem || item.product?.oem || "";
+                const productStock = item.stock ?? item.product?.stock ?? 0;
+                const productActive = item.active ?? item.product?.active ?? true;
+                const productImage = item.image || item.product?.images?.[0] || "";
+
+                const isAvailable = productActive === true && productStock > 0;
+
+                if (isAvailable) {
+                    addItem({
+                        id: item.id || item.productId,
+                        name: productName,
+                        oem: productOem,
+                        price: Number(item.price),
+                        image: productImage,
+                        stock: productStock,
+                    });
+                    addedCount++;
+                } else {
+                    unavailableCount++;
+                    unavailableNames.push(productName);
+                }
             });
 
-            toast.success(`Добавлено ${order.items.length} товаров из заказа в корзину`);
-            openCart();
-            return true;
+            // Результаты
+            if (addedCount > 0) {
+                toast.success(`Добавлено ${addedCount} товар${addedCount > 1 ? 'ов' : ''} в корзину`);
+                openCart();
+            }
+
+            if (unavailableCount > 0) {
+                toast.error(
+                    `${unavailableCount} товар${unavailableCount > 1 ? 'ов' : ''} сейчас недоступен`,
+                );
+            }
+
+            if (addedCount === 0) {
+                toast.error("К сожалению, все товары из этого заказа сейчас недоступны");
+            }
+
+            return addedCount > 0;
+
         } catch (err) {
+            console.error("Ошибка repeatOrder:", err);
             toast.error("Не удалось повторить заказ");
             return false;
         }

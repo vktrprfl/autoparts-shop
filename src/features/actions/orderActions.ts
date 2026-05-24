@@ -108,6 +108,8 @@ export async function getUserOrders() {
                             name: true,
                             oem: true,
                             price: true,
+                            stock: true,
+                            active: true,
                             brand: true,
                             images: true,
                         },
@@ -136,6 +138,9 @@ export async function getUserOrders() {
             price: item.price,
             quantity: item.quantity,
             image: item.product?.images?.[0] || "",
+
+            stock: item.product?.stock ?? 0,
+            active: item.product?.active ?? false,
         })),
     })));
 }
