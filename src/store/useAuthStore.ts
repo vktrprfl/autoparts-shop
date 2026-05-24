@@ -1,4 +1,5 @@
-// src/store/useAuthStore.ts
+"use client";
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -60,8 +61,7 @@ export const useAuthStore = create<AuthStore>()(
                         body: JSON.stringify({ name, email, password }),
                     });
                     const data = await res.json();
-                    if (!data.success)
-                        throw new Error(data.error || 'Ошибка регистрации');
+                    if (!data.success) throw new Error(data.error || 'Ошибка регистрации');
 
                     await get().loadUser();
                     return true;
@@ -113,13 +113,9 @@ export const useAuthStore = create<AuthStore>()(
 
                     const data = await res.json();
 
-                    if (!res.ok) {
-                        throw new Error(
-                            data.error || data.message || 'Не удалось обновить профиль'
-                        );
-                    }
+                    if (!res.ok) throw new Error(data.error || data.message || 'Не удалось обновить профиль');
 
-                    set((state:AuthStore) => ({
+                    set((state) => ({
                         user: state.user ? { ...state.user, ...data.user } : null,
                     }));
 
@@ -133,7 +129,7 @@ export const useAuthStore = create<AuthStore>()(
                 }
             },
 
-            loginWithTelegram: async (telegramUser:any) => {
+            loginWithTelegram: async (telegramUser: any) => {
                 set({ isLoading: true, error: null });
                 try {
                     const res = await fetch('/api/auth/magic', {
@@ -143,8 +139,7 @@ export const useAuthStore = create<AuthStore>()(
                     });
 
                     const data = await res.json();
-                    if (!data.success)
-                        throw new Error(data.error || 'Ошибка входа через Telegram');
+                    if (!data.success) throw new Error(data.error || 'Ошибка входа через Telegram');
 
                     await get().loadUser();
                     return true;
@@ -175,7 +170,7 @@ export const useAuthStore = create<AuthStore>()(
         {
             name: 'auth-storage',
             storage: createJSONStorage(() => localStorage),
-            partialize: (state:AuthStore) => ({ user: state.user }),
+            partialize: (state) => ({ user: state.user }),
         }
     )
 );

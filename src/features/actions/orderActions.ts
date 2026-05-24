@@ -17,7 +17,6 @@ export async function createOrder(data: {
 }) {
     let cartItems = data.cartItems;
 
-    // Если cartItems не передали — берём из Zustand
     if (!cartItems || cartItems.length === 0) {
         try {
             const { useCartStore } = await import("@/src/store/useCartStore");
@@ -119,7 +118,7 @@ export async function getUserOrders() {
         },
     });
 
-    // Конвертируем всё в plain objects
+
     return toPlain(orders.map((order) => ({
         id: order.id,
         created_at: order.createdAt,

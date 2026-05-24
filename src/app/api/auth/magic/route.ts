@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         }
 
         const token = crypto.randomBytes(32).toString('hex');
-        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 минут
 
         await prisma.magicToken.create({
             data: {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
         if (!baseUrl) {
-            console.error("❌ NEXT_PUBLIC_SITE_URL не задан");
+            console.error("NEXT_PUBLIC_SITE_URL не задан");
             return NextResponse.json({ success: false, error: "Ошибка конфигурации" }, { status: 500 });
         }
 

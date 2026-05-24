@@ -152,7 +152,7 @@ model Feedback {
 }
 
 model MagicToken {
-  id         String   @id
+  id         String   @id @default(cuid())
   token      String   @unique
   telegramId String
   name       String?
