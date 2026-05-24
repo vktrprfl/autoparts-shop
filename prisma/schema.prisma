@@ -77,7 +77,8 @@ model Vehicle {
 }
 
 model Order {
-  id              String      @id
+  id String @id @default(cuid())
+
   userId          String?
   customerName    String
   customerPhone   String
@@ -88,10 +89,10 @@ model Order {
   status          OrderStatus @default(PENDING)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
 
-  items OrderItem[]
   user  User?       @relation(fields: [userId], references: [id])
+  items OrderItem[]
 
   @@index([userId])
   @@index([status])
@@ -100,7 +101,7 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id
+  id        String  @id @default(cuid())
   orderId   String
   productId String
   quantity  Int
