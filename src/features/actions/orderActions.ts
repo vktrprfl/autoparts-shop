@@ -3,6 +3,8 @@
 import { prisma } from "@/src/lib/prisma";
 import { getCurrentUserId } from "@/src/lib/auth";
 import {toPlain} from "@/lib/utils/toPlain";
+import {CartItem} from "@/types";
+import { Prisma } from "@prisma/client";
 
 
 export async function createOrder(data: {
@@ -48,10 +50,10 @@ export async function createOrder(data: {
             status: "PENDING",
 
             items: {
-                create: cartItems.map((item: any) => ({
-                    productId: item.id || item.productId,
+                create: cartItems.map((item: CartItem): Prisma.OrderItemUncheckedCreateWithoutOrderInput => ({
+                    productId: item.id,
                     quantity: item.quantity,
-                    price: Number(item.price),
+                    price: item.price,
                 })),
             },
         },

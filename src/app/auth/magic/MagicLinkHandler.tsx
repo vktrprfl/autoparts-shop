@@ -41,7 +41,7 @@ export default function MagicLinkHandler() {
             });
 
             setIsSuccess(true);
-            setStatus('✅ Авторизация прошла успешно!');
+            setStatus('Авторизация прошла успешно!');
             toast.success(`Добро пожаловать, ${result.user.name}!`);
 
             // Можно закомментировать, если не хочешь автоматический редирект
@@ -70,7 +70,7 @@ export default function MagicLinkHandler() {
     return (
         <div className="min-h-screen bg-zinc-950 text-white p-8">
             <div className="max-w-3xl mx-auto">
-                <h1 className="text-4xl font-bold text-center mb-8">🔑 Magic Link Debug</h1>
+                <h1 className="text-4xl font-bold text-center mb-8">Magic Link Debug</h1>
 
                 <div className="text-center mb-6">
                     <p className="text-2xl">{status}</p>
@@ -78,13 +78,13 @@ export default function MagicLinkHandler() {
 
                 {error && (
                     <div className="bg-red-900/50 border border-red-600 p-6 rounded-2xl mb-6">
-                        <strong className="text-red-400">❌ {error}</strong>
+                        <strong className="text-red-400">{error}</strong>
                     </div>
                 )}
 
                 {isSuccess && (
                     <div className="bg-green-900/50 border border-green-600 p-6 rounded-2xl mb-6">
-                        <strong className="text-green-400">✅ Успешный вход</strong>
+                        <strong className="text-green-400">Успешный вход</strong>
                     </div>
                 )}
 

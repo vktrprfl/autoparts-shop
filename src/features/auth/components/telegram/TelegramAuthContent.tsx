@@ -1,4 +1,3 @@
-// src/features/auth/components/telegram/TelegramAuthContent.tsx
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -22,7 +21,7 @@ export default function TelegramAuthContent() {
 
         const handleAuth = async () => {
             try {
-                console.log('🔑 Отправляем токен на проверку...');
+                console.log('Токен на проверке...');
 
                 const res = await fetch('/api/auth/verify-telegram', {
                     method: 'POST',
@@ -33,24 +32,24 @@ export default function TelegramAuthContent() {
                 const result = await res.json();
 
                 if (!result.success || !result.profile) {
-                    console.error('❌ Ошибка верификации:', result.error);
+                    console.error('Ошибка верификации:', result.error);
                     toast.error(result.error || "Недействительная или устаревшая ссылка");
                     router.push('/');
                     return;
                 }
 
-                console.log('✅ Токен валиден');
+                console.log('Токен валиден');
 
                 useAuthStore.setState({
                     user: result.profile,
                     isAuthenticated: true,
                 });
 
-                toast.success(`✅ Добро пожаловать, ${result.profile.name}!`);
+                toast.success(`Добро пожаловать, ${result.profile.name}!`);
                 router.push('/profile?tab=garage');
 
             } catch (err: any) {
-                console.error('💥 Ошибка при обработке токена:', err);
+                console.error('Ошибка при обработке токена:', err);
                 toast.error("Не удалось завершить вход");
                 router.push('/');
             }

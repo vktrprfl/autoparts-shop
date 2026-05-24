@@ -52,3 +52,14 @@ export interface Vehicle {
     createdAt: Date;
     updatedAt: Date;
 }
+
+
+export type CartItem = {
+    id: string;
+    name: string;
+    oem: string;
+    price: number;
+    quantity: number;
+    image: string;
+    stock: number;
+};

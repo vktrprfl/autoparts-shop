@@ -1,16 +1,9 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import {CartItem} from "@/types";
 
-type CartItem = {
-    id: string;
-    name: string;
-    oem: string;
-    price: number;
-    quantity: number;
-    image: string;
-    stock: number;
-};
+
 
 interface CartStore {
     items: CartItem[];
