@@ -7,6 +7,11 @@ import {CartItem} from "@/types";
 
 interface CartStore {
     items: CartItem[];
+
+    isOpen: boolean;
+    openCart: () => void;
+    closeCart: () => void;
+
     addItem: (item: Omit<CartItem, "quantity">) => void;
     removeItem: (id: string) => void;
     updateQuantity: (id: string, quantity: number) => void;
@@ -24,8 +29,14 @@ export const useCartStore = create<CartStore>()(
     persist(
         (set, get) => ({
             items: [],
+            isOpen: false,
             isHydrated: false,
             setHydrated: (state) => set({ isHydrated: state }),
+
+            openCart: () => set({ isOpen: true }),
+            closeCart: () => set({ isOpen: false }),
+
+
             addItem: (product) =>
                 set((state) => {
                     const existing = state.items.find((i) => i.id === product.id);
@@ -62,7 +73,7 @@ export const useCartStore = create<CartStore>()(
                 }));
             },
 
-            clearCart: () => set({ items: [] }),
+            clearCart: () => set({ items: [], isOpen: false }),
 
             getItemQuantity: (id) => {
                 const item = get().items.find((i) => i.id === id);

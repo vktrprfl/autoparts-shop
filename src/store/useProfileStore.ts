@@ -37,12 +37,6 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         }
     },
 
-    // createOrder: async (orderData) => {
-    //     // оставляем как было у тебя раньше (или твой текущий код)
-    //     // toast.info("createOrder вызван через старый store");
-    //     return false; // пока заглушка
-    // },
-
     repeatOrder: async (orderId: string) => {
         const order = get().orders.find(o => o.id === orderId);
         if (!order?.items?.length) {
@@ -51,7 +45,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         }
 
         try {
-            const { addItem } = useCartStore.getState();
+            const { addItem, openCart } = useCartStore.getState();
 
             order.items.forEach((item: any) => {
                 addItem({
@@ -65,6 +59,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
             });
 
             toast.success(`Добавлено ${order.items.length} товаров из заказа в корзину`);
+            openCart();
             return true;
         } catch (err) {
             toast.error("Не удалось повторить заказ");

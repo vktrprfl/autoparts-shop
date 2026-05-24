@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 
 export default function OrdersList() {
     const { orders, isLoading, loadOrders, repeatOrder } = useProfileStore();
-    const router = useRouter();
 
     useEffect(() => {
         loadOrders();
@@ -80,14 +79,8 @@ export default function OrdersList() {
 
                     {/* Кнопка "Повторить заказ" */}
                     <button
-                        onClick={async () => {
-                            const success = await repeatOrder(order.id);
-                            if (success) {
-                                router.push("/cart");
-                            } else {
-                                toast.error("Не удалось повторить заказ");
-                            }
-                        }}
+                        onClick={async () => {await repeatOrder(order.id);}}
+
                         className="w-full mt-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500
                                    rounded-2xl font-semibold text-lg transition-all active:scale-[0.985] shadow-neon-main flex items-center justify-center gap-3"
                     >

@@ -4,6 +4,8 @@ import { Providers } from "./providers";
 import Footer from "@/src/common/components/Footer";
 import {startMagicTokenCleanup} from "@/lib/cron/clean-magic-tokens";
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import ModalsProvider from "@/components/ModalsProvider";
+
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://auto-parts-beige.vercel.app'),
@@ -47,11 +49,8 @@ export const metadata: Metadata = {
 
 };
 
-
-
 export default function RootLayout({
-                                       children,
-                                   }: {
+                                       children,}: {
     children: React.ReactNode;
 }) {
 
@@ -66,6 +65,8 @@ export default function RootLayout({
         <Providers>
 
             {children}
+            <ModalsProvider />
+
             <SpeedInsights />
             <Footer />
         </Providers>
