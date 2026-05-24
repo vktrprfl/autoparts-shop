@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState, useMemo, useEffect } from "react";
+import {useState, useMemo, useEffect,} from "react";
 import { useSearchParams } from "next/navigation";
 
 import Navbar from "@/src/features/Navbar/components/Navbar";
@@ -13,13 +13,13 @@ import Filters from "@/src/features/catalog/components/Filters";
 import Pagination from "@/src/features/catalog/components/Pagination";
 import FeedbackModal from "@/src/features/feedback/components/FeedbackModal";
 
-import { SlidersHorizontal, MessageCircle } from "lucide-react";
 import { Product } from "@/types";
 import ProductCard from "@/features/catalog/components/productDetail/ProductDetailCard";
 
 export default function HomeContent() {
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
 
     const showFloatingButton = useFloatingButton();
     const searchParams = useSearchParams();
@@ -80,10 +80,6 @@ export default function HomeContent() {
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }, [currentPage]);
 
-    // ==================== ОТЛАДКА ====================
-    console.log("allProducts length:", allProducts.length);
-    console.log("isLoading:", productsLoading);
-    console.log("isError:", isError);
 
     if (productsLoading) {
         return (
@@ -113,7 +109,7 @@ export default function HomeContent() {
                     </div>
 
                     <div className="flex-1">
-                        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div  className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <h1 className="text-3xl md:text-4xl font-bold">Каталог автозапчастей</h1>
                             <p className="text-zinc-400">
                                 Найдено: <span className="text-cyan-300 font-medium">{totalItems}</span> товаров
@@ -121,7 +117,7 @@ export default function HomeContent() {
                         </div>
 
                         {paginatedProducts.length === 0 ? (
-                            <div className="text-center py-20 text-zinc-400">
+                            <div   className="text-center py-20 text-zinc-400">
                                 Ничего не найдено по вашему запросу
                             </div>
                         ) : (
@@ -134,12 +130,14 @@ export default function HomeContent() {
                                     ))}
                                 </div>
 
+                                {/* === ПАГИНАЦИЯ === */}
                                 {totalPages > 1 && (
-                                    <Pagination
-                                        currentPage={currentPage}
-                                        totalPages={totalPages}
-                                        onPageChange={changePage}
-                                    />
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={changePage}
+                                        />
+
                                 )}
                             </>
                         )}

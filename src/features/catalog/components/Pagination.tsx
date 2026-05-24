@@ -15,7 +15,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
     const pageRange = getPaginationRange(currentPage, totalPages);
 
     return (
-        <div className="mt-10 md:mt-12 flex justify-center">
+        <div id="pagination"  className="mt-10 md:mt-12 flex justify-center">
             <div className="flex items-center gap-1.5 sm:gap-2 bg-zinc-900 px-3 sm:px-4 py-2.5 sm:py-3 rounded-3xl border border-zinc-700 shadow-inner">
 
                 {/* Кнопка Назад */}

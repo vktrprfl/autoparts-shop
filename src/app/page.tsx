@@ -12,9 +12,9 @@ export default function HomePage() {
         <main className="bg-zinc-950 min-h-screen">
             <Hero />
 
-            {/*<Suspense fallback={<div className="h-96 bg-zinc-950" />}>*/}
-            {/*    <FeaturedProducts />*/}
-            {/*</Suspense>*/}
+            <Suspense fallback={<div className="h-96 bg-zinc-950" />}>
+                <FeaturedProducts />
+            </Suspense>
 
             <Suspense fallback={<div className="h-64 bg-zinc-950" />}>
                 <BrandsSection />

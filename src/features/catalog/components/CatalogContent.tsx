@@ -20,6 +20,8 @@ import { Product } from "@/types";
 import ProductCard from "@/features/catalog/components/productDetail/ProductDetailCard";
 
 export default function CatalogContent() {
+
+
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 

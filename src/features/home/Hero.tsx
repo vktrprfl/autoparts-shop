@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-
+import {ArrowRight, User,} from 'lucide-react';
 export default function Hero() {
+
     return (
         <div className="relative h-[85vh] flex items-center justify-center bg-zinc-950 overflow-hidden">
             {/* Фон */}
@@ -34,7 +34,10 @@ export default function Hero() {
                     >
                         Найти нужную деталь по OEM
                     </Link>
+
+
                 </div>
+
             </div>
 
         </div>

@@ -15,6 +15,7 @@ export const metadata = {
 };
 
 export default async function CatalogPage() {
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
             <CatalogContent  />

@@ -7,21 +7,19 @@ export function useFloatingButton() {
     useEffect(() => {
         const handleScroll = () => {
             const pagination = document.getElementById("pagination");
-            if (!pagination) return;
+            if (!pagination) {
+                setShowFloatingButton(true);
+                return;
+            }
 
-            const paginationRect = pagination.getBoundingClientRect();
+            const rect = pagination.getBoundingClientRect();
+            const shouldHide = rect.top < window.innerHeight * 0.99;
 
-            // === Настройка здесь ===
-            const triggerPoint = window.innerHeight * 1; // было 0.8 — теперь раньше
-            const isNearPagination = paginationRect.top < triggerPoint;
-
-            setShowFloatingButton(!isNearPagination);
+            setShowFloatingButton(!shouldHide);
         };
 
-        window.addEventListener("scroll", handleScroll, { passive: true });
-
-        // Вызываем сразу при монтировании
         handleScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
 
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);

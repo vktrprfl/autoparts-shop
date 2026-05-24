@@ -8,7 +8,7 @@ const promotions = [
         subtitle: "Более 150 новых позиций",
         badge: "Новое",
         color: "orange",
-        link: "/catalog?brand=brake",
+        link: "/catalog",
     },
     {
         id: 2,
@@ -16,7 +16,7 @@ const promotions = [
         subtitle: "До -25% на масляные и воздушные",
         badge: "Акция",
         color: "emerald",
-        link: "/catalog?category=filter",
+        link: "/catalog",
     },
     {
         id: 3,
@@ -24,11 +24,11 @@ const promotions = [
         subtitle: "Амортизаторы, рычаги, сайлентблоки",
         badge: "Хит",
         color: "cyan",
-        link: "/catalog?category=suspension",
+        link: "/catalog",
     },
     {
         id: 4,
-        title: "Запчасти для популярных авто",
+        title: "Запчасти для авто",
         subtitle: "Toyota, Hyundai, Kia, Volkswagen",
         badge: "Выбор",
         color: "violet",

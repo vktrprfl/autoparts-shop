@@ -15,6 +15,8 @@ export default function ModalsProvider() {
                 isOpen={isCartOpen}
                 onClose={closeCart}
             />
+
+
             {/* Сюда можно будет добавлять другие модалки позже */}
         </>
     );
